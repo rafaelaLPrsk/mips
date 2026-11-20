@@ -1,0 +1,50 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity ULA is
+    port(
+        Op_A       : in  std_logic_vector(31 downto 0); -- Vem do MUX ALUSrcA (PC ou Reg A)
+        Op_B       : in  std_logic_vector(31 downto 0); -- Vem do Mux_B (Reg B, 4, SignExt ou ShiftLeft2)
+        ALUOp      : in  std_logic_vector(2 downto 0);  -- Vem da Unidade de Controle (FSM)
+        ULA_Result : out std_logic_vector(31 downto 0); -- Vai para ULA_Out e Mux_PCSource (entrada 0)
+        Zero       : out std_logic                      -- Vai para a porta AND (Branch) e para a FSM (cmovz)
+    );
+end ULA;
+
+architecture rtl of ULA is
+    -- Sinal interno para podermos ler o resultado e testar se é zero ao mesmo tempo
+    signal res_interno : std_logic_vector(31 downto 0);
+begin
+
+    -- Seleção combinacional da operação com base no ALUOp
+    process(Op_A, Op_B, ALUOp)
+    begin
+        case ALUOp is
+            when "000" => -- ADD (Soma aritmética com sinal/sem sinal de 32 bits)
+                res_interno <= std_logic_vector(unsigned(Op_A) + unsigned(Op_B));
+                
+            when "001" => -- SUB (Subtração para comparação no BEQ)
+                res_interno <= std_logic_vector(unsigned(Op_A) - unsigned(Op_B));
+                
+            when "010" => -- AND (Operação lógica bit a bit)
+                res_interno <= Op_A and Op_B;
+                
+            when "011" => -- PASSA B (Deixa Reg B atravessar no estado S13 do cmovz: B + 0)
+                res_interno <= Op_B;
+                
+            when "100" => -- PASSA A (Deixa Reg A atravessar no estado S14 do cmovz: A + 0)
+                res_interno <= Op_A;
+                
+            when others =>
+                res_interno <= (others => '0');
+        end case;
+    end process;
+
+    -- Conecta o resultado interno à saída oficial da ULA
+    ULA_Result <= res_interno;
+
+    -- Flag Zero: fica em '1' sempre que o resultado da operação atual for exatamente zero
+    Zero <= '1' when res_interno = x"00000000" else '0';
+
+end rtl;

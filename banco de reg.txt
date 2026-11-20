@@ -1,0 +1,54 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Reg_File is
+    port(
+        clk      : in  std_logic;
+        rst      : in  std_logic;
+        RegWrite : in  std_logic;                     -- Sinal de controle de escrita
+        R_Reg1   : in  std_logic_vector(4 downto 0);  -- Instruction [25-21] (rs)
+        R_Reg2   : in  std_logic_vector(4 downto 0);  -- Instruction [20-16] (rt)
+        W_Reg3   : in  std_logic_vector(4 downto 0);  -- Saída do MUX RegDst (rt ou rd)
+        WD       : in  std_logic_vector(31 downto 0); -- Saída do MUX MemToReg (Dado a gravar)
+        RD1      : out std_logic_vector(31 downto 0); -- Vai para o Registrador A
+        RD2      : out std_logic_vector(31 downto 0)  -- Vai para o Registrador B
+    );
+end Reg_File;
+
+architecture rtl of Reg_File is
+    -- Declaração dos 32 registradores de 32 bits cada
+    type reg_array is array (0 to 31) of std_logic_vector(31 downto 0);
+    signal registradores : reg_array := (others => (others => '0'));
+begin
+
+    -- 1. LEITURA COMBINACIONAL (Assíncrona)
+    -- Garante que o registrador $0 ($zero) sempre retorne 0, conforme o padrão MIPS
+    RD1 <= (others => '0') when to_integer(unsigned(R_Reg1)) = 0 else
+           registradores(to_integer(unsigned(R_Reg1)));
+
+    RD2 <= (others => '0') when to_integer(unsigned(R_Reg2)) = 0 else
+           registradores(to_integer(unsigned(R_Reg2)));
+
+    -- 2. ESCRITA SÍNCRONA (Apenas na borda de subida do clock)
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            -- Zera todos os 32 registradores no reset
+            registradores <= (others => (others => '0'));
+            
+            -- DICA DE SIMULAÇÃO: Se quiser pré-carregar valores para testar
+            -- instruções rapidamente sem precisar fazer vários 'lw' antes,
+            -- você pode descomentar linhas como estas abaixo:
+            -- registradores(1) <= x"0000000A"; -- $1 = 10
+            -- registradores(2) <= x"00000005"; -- $2 = 5
+            
+        elsif rising_edge(clk) then
+            -- Só grava se RegWrite = '1' e o destino NÃO for o registrador $0
+            if RegWrite = '1' and to_integer(unsigned(W_Reg3)) /= 0 then
+                registradores(to_integer(unsigned(W_Reg3))) <= WD;
+            end if;
+        end if;
+    end process;
+
+end rtl;
