@@ -1,0 +1,20 @@
+if rst = '1' then
+            mem <= (others => (others => '0'));
+            
+            -- PROGRAMA DE TESTE (Endereços de byte 0 a 40 -> Índices 0 a 10)
+            mem(0)  <= x"8C010040"; -- PC=00: lw $1, 64($0)    -> $1 = 12 (0x0000000C)
+            mem(1)  <= x"8C020044"; -- PC=04: lw $2, 68($0)    -> $2 = 5  (0x00000005)
+            mem(2)  <= x"00221800"; -- PC=08: add $3, $1, $2   -> $3 = 17 (0x00000011)
+            mem(3)  <= x"04222000"; -- PC=12: and $4, $1, $2   -> $4 = 4  (0x00000004)
+            mem(4)  <= x"AC030048"; -- PC=16: sw $3, 72($0)    -> Mem[72] (mem(18)) = 17
+            mem(5)  <= x"40242800"; -- PC=20: lwx $5, $4($1)   -> $5 = Mem[12+4] = Mem[16] (0xAC030048)
+            mem(6)  <= x"44613000"; -- PC=24: cmovz $6, $3, $1 -> rt($1)!=0, não grava ($6 continua 0)
+            mem(7)  <= x"44603000"; -- PC=28: cmovz $6, $3, $0 -> rt($0)==0, grava $6 = $3 = 17
+            mem(8)  <= x"10C30001"; -- PC=32: beq $6, $3, 1    -> $6==$3, salta para PC = 32+4+(1*4) = 40
+            mem(9)  <= x"00213800"; -- PC=36: add $7, $1, $1   -> INSTRUÇÃO IGNORADA PELO BEQ ($7 = 0)
+            mem(10) <= x"0800000A"; -- PC=40: j 10             -> Salta para PC = 10*4 = 40 (Fim)
+
+            -- DADOS NA MEMÓRIA (Endereços de byte 64 e 68 -> Índices 16 e 17)
+            mem(16) <= x"0000000C"; -- Endereço 64 (16 * 4): Valor 12
+            mem(17) <= x"00000005"; -- Endereço 68 (17 * 4): Valor 5
+            -- O endereço 72 (índice 18) começará em 0 e receberá 17 (0x00000011) após o 'sw'
