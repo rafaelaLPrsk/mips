@@ -1,0 +1,139 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 20.11.2026 11:17:06
+-- Design Name: 
+-- Module Name: top_level - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity TopLevel is
+    port(
+        clk   : in std_logic;
+        reset : in std_logic
+    );
+end TopLevel;
+
+architecture rtl of TopLevel is
+
+    component Control_Unit is
+        port(
+            clk              : in  std_logic;
+            rst              : in  std_logic;
+            Opcode           : in  std_logic_vector(5 downto 0);
+            Zero_Flag        : in  std_logic;
+            PcWriteCondition : out std_logic;
+            PcEnable         : out std_logic;
+            IorD             : out std_logic;
+            MemRead          : out std_logic;
+            MemWrite         : out std_logic;
+            IRWrite          : out std_logic;
+            MemToReg         : out std_logic;
+            PCSource         : out std_logic_vector(1 downto 0);
+            ALUOp            : out std_logic_vector(2 downto 0);
+            ALUSrcB          : out std_logic_vector(1 downto 0);
+            ALUSrcA          : out std_logic;
+            RegWrite         : out std_logic;
+            RegDst           : out std_logic
+        );
+    end component;
+
+    component data_path is
+        port(
+            clk              : in  std_logic;
+            rst              : in  std_logic;
+            PcWriteCondition : in  std_logic;
+            PcEnable         : in  std_logic;
+            IorD             : in  std_logic;
+            MemRead          : in  std_logic;
+            MemWrite         : in  std_logic;
+            IRWrite          : in  std_logic;
+            MemToReg         : in  std_logic;
+            PCSource         : in  std_logic_vector(1 downto 0);
+            ALUOp            : in  std_logic_vector(2 downto 0);
+            ALUSrcB          : in  std_logic_vector(1 downto 0);
+            ALUSrcA          : in  std_logic;
+            RegWrite         : in  std_logic;
+            RegDst           : in  std_logic;
+            Opcode           : out std_logic_vector(5 downto 0);
+            Zero_Flag        : out std_logic
+        );
+    end component;
+
+    -- Fios internos de interconexão entre Controle e Datapath
+    signal s_PcWriteCondition : std_logic;
+    signal s_PcEnable         : std_logic;
+    signal s_IorD             : std_logic;
+    signal s_MemRead          : std_logic;
+    signal s_MemWrite         : std_logic;
+    signal s_IRWrite          : std_logic;
+    signal s_MemToReg         : std_logic;
+    signal s_PCSource         : std_logic_vector(1 downto 0);
+    signal s_ALUOp            : std_logic_vector(2 downto 0);
+    signal s_ALUSrcB          : std_logic_vector(1 downto 0);
+    signal s_ALUSrcA          : std_logic;
+    signal s_RegWrite         : std_logic;
+    signal s_RegDst           : std_logic;
+    signal s_Opcode           : std_logic_vector(5 downto 0);
+    signal s_Zero_Flag        : std_logic;
+
+begin
+
+    Inst_Control_Unit: Control_Unit
+        port map(
+            clk              => clk,
+            rst              => reset,
+            Opcode           => s_Opcode,
+            Zero_Flag        => s_Zero_Flag,
+            PcWriteCondition => s_PcWriteCondition,
+            PcEnable         => s_PcEnable,
+            IorD             => s_IorD,
+            MemRead          => s_MemRead,
+            MemWrite         => s_MemWrite,
+            IRWrite          => s_IRWrite,
+            MemToReg         => s_MemToReg,
+            PCSource         => s_PCSource,
+            ALUOp            => s_ALUOp,
+            ALUSrcB          => s_ALUSrcB,
+            ALUSrcA          => s_ALUSrcA,
+            RegWrite         => s_RegWrite,
+            RegDst           => s_RegDst
+        );
+
+    Inst_Data_Path: data_path
+        port map(
+            clk              => clk,
+            rst              => reset,
+            PcWriteCondition => s_PcWriteCondition,
+            PcEnable         => s_PcEnable,
+            IorD             => s_IorD,
+            MemRead          => s_MemRead,
+            MemWrite         => s_MemWrite,
+            IRWrite          => s_IRWrite,
+            MemToReg         => s_MemToReg,
+            PCSource         => s_PCSource,
+            ALUOp            => s_ALUOp,
+            ALUSrcB          => s_ALUSrcB,
+            ALUSrcA          => s_ALUSrcA,
+            RegWrite         => s_RegWrite,
+            RegDst           => s_RegDst,
+            Opcode           => s_Opcode,
+            Zero_Flag        => s_Zero_Flag
+        );
+
+end rtl;

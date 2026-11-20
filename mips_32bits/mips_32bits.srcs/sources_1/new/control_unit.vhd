@@ -1,0 +1,266 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 20.11.2026 11:14:09
+-- Design Name: 
+-- Module Name: control_unit - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity control_unit is
+    port(
+        clk              : in  std_logic;
+        rst              : in  std_logic;
+        Opcode           : in  std_logic_vector(5 downto 0); -- Instruction [31-26]
+        Zero_Flag        : in  std_logic;                    -- Vem da ULA (usado em S13 no cmovz)
+        
+        -- Sinais de Controle para o Datapath
+        PcWriteCondition : out std_logic;
+        PcEnable         : out std_logic;
+        IorD             : out std_logic;
+        MemRead          : out std_logic;
+        MemWrite         : out std_logic;
+        IRWrite          : out std_logic;
+        MemToReg         : out std_logic;
+        PCSource         : out std_logic_vector(1 downto 0);
+        ALUOp            : out std_logic_vector(2 downto 0);
+        ALUSrcB          : out std_logic_vector(1 downto 0);
+        ALUSrcA          : out std_logic;
+        RegWrite         : out std_logic;
+        RegDst           : out std_logic
+    );
+end control_unit;
+
+architecture rtl of control_unit is
+
+    -- Definição dos 16 estados da FSM (S0 a S15)
+    type state_type is (
+        S0, S1, S2, S3, S4, S5, S6, S7,
+        S8, S9, S10, S11, S12, S13, S14, S15
+    );
+    signal state, next_state : state_type := S0;
+
+    -- Constantes dos Opcodes de 6 bits
+    constant OP_ADD   : std_logic_vector(5 downto 0) := "000000";
+    constant OP_AND   : std_logic_vector(5 downto 0) := "000001";
+    constant OP_J     : std_logic_vector(5 downto 0) := "000010";
+    constant OP_BEQ   : std_logic_vector(5 downto 0) := "000100";
+    constant OP_LWX   : std_logic_vector(5 downto 0) := "010000";
+    constant OP_CMOVZ : std_logic_vector(5 downto 0) := "010001";
+    constant OP_LW    : std_logic_vector(5 downto 0) := "100011";
+    constant OP_SW    : std_logic_vector(5 downto 0) := "101011";
+
+begin
+
+    ----------------------------------------------------------------------------
+    -- 1. REGISTRADOR DE ESTADO (Transição Síncrona)
+    ----------------------------------------------------------------------------
+    process(clk, rst)
+    begin
+        if rst = '1' then
+            state <= S0;
+        elsif rising_edge(clk) then
+            state <= next_state;
+        end if;
+    end process;
+
+    ----------------------------------------------------------------------------
+    -- 2. LÓGICA DE PRÓXIMO ESTADO
+    ----------------------------------------------------------------------------
+    process(state, Opcode, Zero_Flag)
+    begin
+        case state is
+            when S0 =>
+                next_state <= S1;
+
+            when S1 =>
+                case Opcode is
+                    when OP_ADD | OP_AND => next_state <= S2;
+                    when OP_LW  | OP_SW  => next_state <= S4;
+                    when OP_BEQ          => next_state <= S8;
+                    when OP_J            => next_state <= S9;
+                    when OP_LWX          => next_state <= S10;
+                    when OP_CMOVZ        => next_state <= S13;
+                    when others          => next_state <= S0;
+                end case;
+
+            -- Tipo R (add, and)
+            when S2 => next_state <= S3;
+            when S3 => next_state <= S0;
+
+            -- Load Word (lw) e Store Word (sw)
+            when S4 =>
+                if Opcode = OP_SW then
+                    next_state <= S5;
+                else
+                    next_state <= S6;
+                end if;
+            when S5 => next_state <= S0;
+            when S6 => next_state <= S7;
+            when S7 => next_state <= S0;
+
+            -- Branch on Equal (beq) e Jump (j)
+            when S8 => next_state <= S0;
+            when S9 => next_state <= S0;
+
+            -- Load Word Indexed (lwx)
+            when S10 => next_state <= S11;
+            when S11 => next_state <= S12;
+            when S12 => next_state <= S0;
+
+            -- Conditional Move if Zero (cmovz)
+            when S13 =>
+                if Zero_Flag = '1' then
+                    next_state <= S14; -- rt == 0: prossegue para copiar rs -> rd
+                else
+                    next_state <= S0;  -- rt != 0: aborta e volta para o Fetch
+                end if;
+            when S14 => next_state <= S15;
+            when S15 => next_state <= S0;
+
+            when others =>
+                next_state <= S0;
+        end case;
+    end process;
+
+    ----------------------------------------------------------------------------
+    -- 3. LÓGICA DE SAÍDA DOS SINAIS DE CONTROLE (Por Estado)
+    ----------------------------------------------------------------------------
+    process(state, Opcode)
+    begin
+        -- Valores padrão (evita latches e garante que escritas fiquem desligadas)
+        PcWriteCondition <= '0';
+        PcEnable         <= '0';
+        IorD             <= '0';
+        MemRead          <= '0';
+        MemWrite         <= '0';
+        IRWrite          <= '0';
+        MemToReg         <= '0';
+        PCSource         <= "00";
+        ALUOp            <= "000";
+        ALUSrcB          <= "00";
+        ALUSrcA          <= '0';
+        RegWrite         <= '0';
+        RegDst           <= '0';
+
+        case state is
+            -- S0: Busca da Instrução (Fetch) e PC = PC + 4
+            when S0 =>
+                MemRead  <= '1';
+                IorD     <= '0';
+                IRWrite  <= '1';
+                ALUSrcA  <= '0';
+                ALUSrcB  <= "01";  -- Constante 4
+                ALUOp    <= "000"; -- Add
+                PCSource <= "00";  -- ULA_Result
+                PcEnable <= '1';
+
+            -- S1: Decodificação (Decode) e cálculo preventivo do endereço de Branch
+            when S1 =>
+                ALUSrcA <= '0';   -- PC
+                ALUSrcB <= "11";  -- Shift Left 2 do imediato
+                ALUOp   <= "000"; -- Add
+
+            -- S2: Execução Tipo R (add, and)
+            when S2 =>
+                ALUSrcA <= '1';  -- Reg A
+                ALUSrcB <= "00"; -- Reg B
+                if Opcode = OP_AND then
+                    ALUOp <= "010"; -- And
+                else
+                    ALUOp <= "000"; -- Add
+                end if;
+
+            -- S3: Escrita no Registrador / WB (add, and)
+            when S3 =>
+                RegDst   <= '1'; -- rd [15-11]
+                MemToReg <= '0'; -- ULA_Out
+                RegWrite <= '1';
+
+            -- S4: Cálculo de Endereço de Memória (lw, sw)
+            when S4 =>
+                ALUSrcA <= '1';   -- Reg A
+                ALUSrcB <= "10";  -- Sign Extend 32
+                ALUOp   <= "000"; -- Add
+
+            -- S5: Gravação na Memória (sw)
+            when S5 =>
+                IorD     <= '1'; -- ULA_Out
+                MemWrite <= '1';
+
+            -- S6: Leitura da Memória (lw)
+            when S6 =>
+                IorD    <= '1'; -- ULA_Out
+                MemRead <= '1';
+
+            -- S7: Gravação no Registrador / WB (lw)
+            when S7 =>
+                RegDst   <= '0'; -- rt [20-16]
+                MemToReg <= '1'; -- MDR
+                RegWrite <= '1';
+
+            -- S8: Execução Desvio Condicional (beq)
+            when S8 =>
+                ALUSrcA          <= '1';   -- Reg A
+                ALUSrcB          <= "00";  -- Reg B
+                ALUOp            <= "001"; -- Sub
+                PcWriteCondition <= '1';   -- Branch
+                PCSource         <= "01";  -- ULA_Out
+
+            -- S9: Execução Desvio Incondicional (j)
+            when S9 =>
+                PCSource <= "10"; -- Jump address
+                PcEnable <= '1';
+
+            -- S10: Execução Soma Indexada (lwx)
+            when S10 =>
+                ALUSrcA <= '1';   -- Reg A (base)
+                ALUSrcB <= "00";  -- Reg B (índice)
+                ALUOp   <= "000"; -- Add
+
+            -- S11: Leitura da Memória (lwx)
+            when S11 =>
+                IorD    <= '1'; -- ULA_Out
+                MemRead <= '1';
+
+            -- S12: Gravação no Registrador / WB (lwx)
+            when S12 =>
+                RegDst   <= '1'; -- rd [15-11]
+                MemToReg <= '1'; -- MDR
+                RegWrite <= '1';
+
+            -- S13: Teste de Condição Zero (cmovz)
+            when S13 =>
+                ALUSrcB <= "00";  -- Reg B (rt)
+                ALUOp   <= "011"; -- Passa B (B + 0) para ativar Zero_Flag se rt == 0
+
+            -- S14: Passagem do Dado Fonte (cmovz)
+            when S14 =>
+                ALUSrcA <= '1';   -- Reg A (rs)
+                ALUOp   <= "100"; -- Passa A (A + 0) para salvar rs em ULA_Out
+
+            -- S15: Gravação Condicional / WB (cmovz)
+            when S15 =>
+                RegDst   <= '1'; -- rd [15-11]
+                MemToReg <= '0'; -- ULA_Out
+                RegWrite <= '1';
+
+        end case;
+    end process;
+
+end rtl;

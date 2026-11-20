@@ -1,0 +1,78 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 20.11.2026 11:19:21
+-- Design Name: 
+-- Module Name: testbench - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity TB_TopLevel is
+end TB_TopLevel;
+
+architecture behavior of TB_TopLevel is
+
+    component TopLevel is
+        port(
+            clk   : in std_logic;
+            reset : in std_logic
+        );
+    end component;
+
+    signal clk   : std_logic := '0';
+    signal reset : std_logic := '0';
+
+    -- Clock de 10 ns (100 MHz)
+    constant clk_period : time := 10 ns;
+
+begin
+
+    -- Instancia o Processador MIPS Multiciclo
+    UUT: TopLevel
+        port map(
+            clk   => clk,
+            reset => reset
+        );
+
+    -- Geração contínua do Clock
+    clk_process : process
+    begin
+        while true loop
+            clk <= '0';
+            wait for clk_period / 2;
+            clk <= '1';
+            wait for clk_period / 2;
+        end loop;
+    end process;
+
+    -- Processo de Estímulo (Reset inicial e execução livre)
+    stim_proc: process
+    begin
+        -- Mantém o reset ativo por 25 ns para inicializar PC, Registradores e Memória
+        reset <= '1';
+        wait for 25 ns;
+        reset <= '0';
+
+        -- Aguarda 500 ns (50 ciclos de clock, suficiente para rodar todas as 10 instruções)
+        wait for 500 ns;
+
+        -- Pausa a simulação
+        wait;
+    end process;
+
+end behavior;
