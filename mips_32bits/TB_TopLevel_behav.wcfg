@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="TB_TopLevel_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="TB_TopLevel" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="1000000fs"></ZoomEndTime>
+      <Cursor1Time time="417758fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="159"></NameColumnWidth>
+      <ValueColumnWidth column_width="65"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="20" />
+   <wvobject fp_name="/TB_TopLevel/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/clk_period" type="other">
+      <obj_property name="ElementShortName">clk_period</obj_property>
+      <obj_property name="ObjectShortName">clk_period</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/PC" type="array">
+      <obj_property name="ElementShortName">PC[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PC[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/IR" type="array">
+      <obj_property name="ElementShortName">IR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IR[31:0]</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/state" type="other">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/next_state" type="other">
+      <obj_property name="ElementShortName">next_state</obj_property>
+      <obj_property name="ObjectShortName">next_state</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/Opcode" type="array">
+      <obj_property name="ElementShortName">Opcode[5:0]</obj_property>
+      <obj_property name="ObjectShortName">Opcode[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/MemWrite" type="logic">
+      <obj_property name="ElementShortName">MemWrite</obj_property>
+      <obj_property name="ObjectShortName">MemWrite</obj_property>
+      <obj_property name="CustomSignalColor">#FF0000</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/MemRead" type="logic">
+      <obj_property name="ElementShortName">MemRead</obj_property>
+      <obj_property name="ObjectShortName">MemRead</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/Inst_Memory/End_in" type="array">
+      <obj_property name="ElementShortName">End_in[31:0]</obj_property>
+      <obj_property name="ObjectShortName">End_in[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/Inst_Memory/WriteData" type="array">
+      <obj_property name="ElementShortName">WriteData[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WriteData[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/MDR" type="array">
+      <obj_property name="ElementShortName">MDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/RegWrite" type="logic">
+      <obj_property name="ElementShortName">RegWrite</obj_property>
+      <obj_property name="ObjectShortName">RegWrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Control_Unit/Zero_Flag" type="logic">
+      <obj_property name="ElementShortName">Zero_Flag</obj_property>
+      <obj_property name="ObjectShortName">Zero_Flag</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/ULA_Out" type="array">
+      <obj_property name="ElementShortName">ULA_Out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ULA_Out[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/Inst_Registradores/registradores" type="array">
+      <obj_property name="ElementShortName">registradores[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">registradores[0:31][31:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/Inst_Memory/mem" type="array">
+      <obj_property name="ElementShortName">mem[0:255][31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[0:255][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/Reg_Debug" type="array">
+      <obj_property name="ElementShortName">Reg_Debug[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">Reg_Debug[0:31][31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_TopLevel/UUT/Inst_Data_Path/Inst_Memory/word_addr" type="other">
+      <obj_property name="ElementShortName">word_addr</obj_property>
+      <obj_property name="ObjectShortName">word_addr</obj_property>
+   </wvobject>
+</wave_config>
