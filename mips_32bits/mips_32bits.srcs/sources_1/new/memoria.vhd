@@ -58,27 +58,66 @@ begin
     process(clk, rst)
     begin
         if rst = '1' then
-
-            mem <= (others => (others => '0'));
-
-            -- PROGRAMA DE TESTE
-
-            mem(0)  <= x"8C010040"; -- lw $1, 64($0)
-            mem(1)  <= x"8C020044"; -- lw $2, 68($0)
-            mem(2)  <= x"00221800"; -- add $3, $1, $2
-            mem(3)  <= x"04222000"; -- and $4, $1, $2
-            mem(4)  <= x"AC030048"; -- sw $3, 72($0)
-            mem(5)  <= x"40242800"; -- lwx $5, $4($1)
-            mem(6)  <= x"44613000"; -- cmovz $6, $3, $1
-            mem(7)  <= x"44603000"; -- cmovz $6, $3, $0
-            mem(8)  <= x"10C30001"; -- beq $6, $3, 1
-            mem(9)  <= x"00213800"; -- add $7, $1, $1
-            mem(10) <= x"0800000A"; -- j 10
-
-            -- DADOS INICIAIS
-
-            mem(16) <= x"0000000C"; -- Endereço 64: valor 12
-            mem(17) <= x"00000005"; -- Endereço 68: valor 5
+        mem <= (others => (others => '0'));
+        
+        -- Programa de testes
+        
+        -- 0: lw $1, 160($0)
+        mem(0)  <= x"8C0100A0";
+        
+        -- 1: lw $2, 164($0)
+        mem(1)  <= x"8C0200A4";
+        
+        -- 2: add $3, $1, $2
+        mem(2)  <= x"00221800";
+        
+        -- 3: and $4, $1, $2
+        mem(3)  <= x"04222000";
+        
+        -- 4: sw $3, 168($0)
+        mem(4)  <= x"AC0300A8";
+        
+        -- 5: lwx $5, $4($1)
+        mem(5)  <= x"40242800";
+        
+        -- 6: cmovz $6, $5, $2 (condição falsa)
+        mem(6)  <= x"44A23000";
+        
+        -- 7: cmovz $7, $3, $0 (condição verdadeira)
+        mem(7)  <= x"44603800";
+        
+        -- 8: beq $1, $2, 1 (não tomado)
+        mem(8)  <= x"10220001";
+        
+        -- 9: add $8, $1, $1
+        mem(9)  <= x"00214000";
+        
+        -- 10: beq $3, $3, 1 (tomado)
+        mem(10) <= x"10630001";
+        
+        -- 11: add $9, $1, $2 (deve ser ignorado)
+        mem(11) <= x"00224800";
+        
+        -- 12: j 14
+        mem(12) <= x"0800000E";
+        
+        -- 13: add $10, $1, $1 (deve ser ignorado)
+        mem(13) <= x"00215000";
+        
+        -- 14: j 14 (loop)
+        mem(14) <= x"0800000E";
+        
+        
+        -- Dados de teste
+        -- Endereço 160 (posição 40)
+        mem(40) <= x"000000A8";
+        
+        -- Endereço 164 (posição 41)
+        mem(41) <= x"0000000C";
+        
+        -- Endereço 176 (posição 44): dado para lwx
+        mem(44) <= x"DEADBEEF";
+        
 
         elsif rising_edge(clk) then
 
