@@ -33,7 +33,8 @@ entity Reg_File is
         W_Reg3   : in  std_logic_vector(4 downto 0);
         WD       : in  std_logic_vector(31 downto 0);
         RD1      : out std_logic_vector(31 downto 0);
-        RD2      : out std_logic_vector(31 downto 0)
+        RD2      : out std_logic_vector(31 downto 0);
+        Debug_Regs : out std_logic_vector(1023 downto 0) -- saída debug 32 reg x 32 bits = 1024 bits
     );
 end Reg_File;
 
@@ -47,6 +48,11 @@ architecture rtl of Reg_File is
 
 begin
 
+    -- saida de debug dos 32 registradores
+    gen_debug: for i in 0 to 31 generate
+        Debug_Regs((i+1)*32-1 downto i*32) <= registradores(i);
+    end generate; -- disponibiliza valores q ja existem no banco
+    
     -- Leitura combinacional
     RD1 <= (others => '0')
         when unsigned(R_Reg1) = 0

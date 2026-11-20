@@ -45,7 +45,8 @@ entity data_path is
         
         -- Saídas de Status para a Unidade de Controle (FSM)
         Opcode           : out std_logic_vector(5 downto 0);  -- Instruction [31-26]
-        Zero_Flag        : out std_logic                      -- Flag Zero da ULA (para cmovz em S13)
+        Zero_Flag        : out std_logic;                      -- Flag Zero da ULA (para cmovz em S13)
+        Debug_Regs       : out std_logic_vector(1023 downto 0)
     );
 end data_path;
 
@@ -74,7 +75,8 @@ architecture rtl of data_path is
             W_Reg3   : in  std_logic_vector(4 downto 0);
             WD       : in  std_logic_vector(31 downto 0);
             RD1      : out std_logic_vector(31 downto 0);
-            RD2      : out std_logic_vector(31 downto 0)
+            RD2      : out std_logic_vector(31 downto 0);
+            Debug_Regs : out std_logic_vector(1023 downto 0) -- outra coisa pro debug
         );
     end component;
 
@@ -190,7 +192,8 @@ begin
             W_Reg3   => mux_regdst_o,
             WD       => mux_memtoreg_o,
             RD1      => rd1_o,
-            RD2      => rd2_o
+            RD2      => rd2_o,
+            Debug_Regs => Debug_Regs -- a saída do banco de registradores tá conectada diretamente à saída do datapath
         );
 
     Inst_ULA: ULA

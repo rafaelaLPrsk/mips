@@ -1,23 +1,3 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 20.11.2026 11:19:21
--- Design Name: 
--- Module Name: testbench - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -27,29 +7,42 @@ end TB_TopLevel;
 
 architecture behavior of TB_TopLevel is
 
+    -- Componente do processador
     component TopLevel is
         port(
-            clk   : in std_logic;
-            reset : in std_logic
+            clk        : in std_logic;
+            reset      : in std_logic;
+            Debug_Regs : out std_logic_vector(1023 downto 0)
         );
     end component;
 
-    signal clk   : std_logic := '0';
-    signal reset : std_logic := '0';
+    -- Tipo que representa os 32 registradores
+    type debug_array is array (0 to 31) of std_logic_vector(31 downto 0);
 
-    -- Clock de 10 ns (100 MHz)
+    -- Sinais
+    signal clk        : std_logic := '0';
+    signal reset      : std_logic := '0';
+    signal Debug_Regs : std_logic_vector(1023 downto 0);
+    signal Reg_Debug  : debug_array;
+
     constant clk_period : time := 10 ns;
 
 begin
 
-    -- Instancia o Processador MIPS Multiciclo
+    -- Instancia o processador
     UUT: TopLevel
         port map(
-            clk   => clk,
-            reset => reset
+            clk        => clk,
+            reset      => reset,
+            Debug_Regs => Debug_Regs
         );
 
-    -- Geração contínua do Clock
+    -- Separa os 32 registradores
+    gen_debug: for i in 0 to 31 generate
+        Reg_Debug(i) <= Debug_Regs((i+1)*32-1 downto i*32);
+    end generate;
+
+    -- Clock
     clk_process : process
     begin
         while true loop
@@ -60,18 +53,14 @@ begin
         end loop;
     end process;
 
-    -- Processo de Estímulo (Reset inicial e execução livre)
+    -- Reset e execução
     stim_proc: process
     begin
-        -- Mantém o reset ativo por 25 ns para inicializar PC, Registradores e Memória
         reset <= '1';
         wait for 25 ns;
         reset <= '0';
 
-        -- Aguarda 500 ns (50 ciclos de clock, suficiente para rodar todas as 10 instruções)
-        wait for 500 ns;
-
-        -- Pausa a simulação
+        wait for 550 ns;
         wait;
     end process;
 

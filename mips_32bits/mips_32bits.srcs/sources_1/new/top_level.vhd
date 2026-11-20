@@ -25,7 +25,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity TopLevel is
     port(
         clk   : in std_logic;
-        reset : in std_logic
+        reset : in std_logic;
+        Debug_Regs : out std_logic_vector(1023 downto 0)
     );
 end TopLevel;
 
@@ -71,7 +72,8 @@ architecture rtl of TopLevel is
             RegWrite         : in  std_logic;
             RegDst           : in  std_logic;
             Opcode           : out std_logic_vector(5 downto 0);
-            Zero_Flag        : out std_logic
+            Zero_Flag        : out std_logic;
+            Debug_Regs       : out std_logic_vector(1023 downto 0)
         );
     end component;
 
@@ -133,7 +135,8 @@ begin
             RegWrite         => s_RegWrite,
             RegDst           => s_RegDst,
             Opcode           => s_Opcode,
-            Zero_Flag        => s_Zero_Flag
+            Zero_Flag        => s_Zero_Flag,
+            Debug_Regs       => Debug_Regs
         );
 
 end rtl;
