@@ -174,14 +174,13 @@ Se você nunca usou o Xilinx Vivado ou não é familiar com VHDL, siga este pass
 ### 8.1 Ferramentas necessárias
 
 * Faça o download e instalação do **Xilinx Vivado** (A versão utilizada durante o projeto foi a `2020.2`, mas a versão gratuita *Vivado ML Standard Edition* mais recente funcionará perfeitamente).
-* Git (opcional, para clonar o repositório).
 
 ### 8.2 Criando o projeto no Vivado
 
 1. Abra o Vivado e clique em **Create Project**.
 2. Clique em *Next*. Dê um nome ao projeto (ex: `Processador_MIPS`) e escolha um local.
 3. Escolha **RTL Project** e marque a caixa *Do not specify sources at this time*.
-4. Na tela *Default Part*, você precisa escolher um modelo de FPGA. O projeto foi sintetizado para a `xc7z010iclg225-1L` (Zynq-7000), mas como só vamos fazer **simulação**, qualquer placa genérica serve (ex: família Artix-7). Selecione uma e clique em *Finish*.
+4. Na tela *Default Part*, você precisa escolher um modelo de FPGA. Qualquer placa genérica serve para simulação (ex: família Artix-7). Selecione uma e clique em *Finish*.
 
 ### 8.3 Adicionando os arquivos
 
