@@ -24,10 +24,10 @@ Projeto desenvolvido para a disciplina de Organização de Computadores na Unive
 5. [Desenvolvimento: linha do tempo do projeto](#5-desenvolvimento-linha-do-tempo-do-projeto)
 6. [Mapeamento de Hardware e Caminho de Dados](#6-mapeamento-de-hardware)
 7. [Estrutura do repositório](#7-estrutura-do-repositório)
-8. [Como reproduzir o projeto (Tutorial Vivado)](#8-como-reproduzir-o-projeto)
-9. [Programa de Teste e Validação](#9-programa-de-teste-e-validação)
-10. [Limitações conhecidas e trabalhos futuros](#10-limitações-conhecidas-e-trabalhos-futuros)
-11. [Considerações finais](#11-considerações-finais)
+9. [Como reproduzir o projeto (Tutorial Vivado)](#8-como-reproduzir-o-projeto)
+10. [Programa de Teste e Validação](#9-programa-de-teste-e-validação)
+11. [Limitações conhecidas e trabalhos futuros](#10-limitações-conhecidas-e-trabalhos-futuros)
+12. [Considerações finais](#11-considerações-finais)
 
 ---
 
@@ -64,6 +64,23 @@ O sistema é dividido em três blocos principais de hardware estrutural:
 ```
 
 O componente **TopLevel** atua conectando o Caminho de Dados à Unidade de Controle, abstraindo toda a complexidade interna do processador.
+
+Clique nas imagens para expandi-las: 
+<table>
+  <tr>
+    <td align="center"><b>Datapath</b></td>
+    <td><img src="datapath.drawio.png" alt="Diagrama do datapath" width="600"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Caminho de Dados (FSM)</b></td>
+    <td><img src="caminho-dados.drawio.png" alt="Esquema do caminho de dados" width="600"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Esquemático gerado pelo Vivado</b></td>
+    <td><img src="schematic.png" alt="Esquemática gerada no Vivado" width="600"/></td>
+  </tr>
+</table>
+
 
 ## 4. Fundamentação teórica
 
@@ -103,7 +120,7 @@ A FSM (Máquina de Estados) possui 16 estados (`S0` a `S15`). Todas as instruç�
 
 Construir uma CPU não é algo que se faz "de uma vez". O projeto seguiu uma ordem lógica de implementação e testes:
 
-1. **ULA e Registradores:** O coração do datapath. A ULA foi feita com suporte inicial apenas a ADD e SUB. O Banco de Registradores foi projetado para leitura assíncrona/combinacional e escrita síncrona (na borda de subida).
+1. **ULA e Registradores:** A ULA foi feita com suporte inicial apenas a ADD e SUB. O Banco de Registradores foi projetado para leitura assíncrona/combinacional e escrita síncrona (na borda de subida).
 2. **Memória de Instruções/Dados:** A RAM foi modelada com 256 posições (por limites didáticos) e já preenchida no sinal de *Reset* com um pequeno programa em linguagem de máquina para testes.
 3. **Integração do Datapath:** PC, Instruction Register (IR), Memory Data Register (MDR), extensores de sinal (Sign Extend) e deslocadores (Shift Left 2) foram instanciados em um único arquivo interligados por MUXes.
 4. **Criação da Unidade de Controle:** A FSM foi escrita e mapeada a partir do diagrama de estados. Nesse ponto, o MIPS executava o subconjunto básico.
@@ -114,6 +131,18 @@ Construir uma CPU não é algo que se faz "de uma vez". O projeto seguiu uma ord
 O componente principal (`data_path.vhd`) interliga os elementos. Alguns destaques de como o hardware lida com as restrições físicas:
 * **Uso único da ULA:** Como a ULA é usada para somar PC+4 (S0), calcular saltos (S1), calcular endereços (S4, S10) e operações aritméticas (S2), os operandos dela são selecionados por Muxes ( `ALUSrcA` e `ALUSrcB`), controlados diretamente pela FSM.
 * **Saída Debug:** Para facilitar o monitoramento na simulação (já que não há LED ou display físico neste nível), o Banco de Registradores expõe um sinal `Debug_Regs` de 1024 bits (32 registradores x 32 bits), que é elevado até o Testbench.
+
+### 6.1 Síntese e Utilização de Hardware (Relatório do Vivado)
+
+Para fins de avaliação estrutural e validação do RTL, abaixo estão os principais dados de utilização de hardware (Slice Logic) extraídos do relatório de síntese:
+
+* **Slice LUTs (Look-Up Tables):** 3.473 de 17.600 disponíveis (19,73%)
+* **Slice Registers (Flip-Flops):** 9.497 de 35.200 disponíveis (26,98%)
+* **F7 Muxes:** 1.312 de 8.800 disponíveis (14,91%)
+* **F8 Muxes:** 512 de 4.400 disponíveis (11,64%)
+* **DSPs e Block RAMs:** 0% (O projeto fez uso estrito de lógica combinacional e registradores padrão, sem inferir blocos de RAM dedicados da FPGA)[cite: 1]
+
+**Nota sobre a superutilização de pinos (IOB):** O relatório apontou o uso de 1.026 pinos de I/O (Bonded IOB), o que representa 1900% da capacidade da placa. Esse comportamento é esperado, visto que o barramento de debug `Debug_Regs` expõe todos os registradores simultaneamente (32 registradores de 32 bits = 1024 bits) para a raiz do *TopLevel* a fim de facilitar a visualização na simulação. Em uma implementação física real, esse sinal de debug seria removido, mantendo o design dentro dos limites de pinos físicos da placa.
 
 ## 7. Estrutura do repositório
 
