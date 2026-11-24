@@ -1,4 +1,3 @@
-# Processador Multiciclo RISC (MIPS 32 Bits) em VHDL
 
 <p align="center">
   <img src="https://img.shields.io/badge/VHDL-00599C?style=flat-square&logo=v&logoColor=white" alt="VHDL" />
@@ -33,7 +32,7 @@ Projeto desenvolvido para a disciplina de Organização de Computadores na Unive
 
 ## 1. Resumo
 
-Este trabalho implementa um processador RISC multiciclo baseado no MIPS de 32 bits. Diferente de um processador de ciclo único, onde cada instrução precisa ser executada em um único pulso de clock (o que exige um clock muito lento), a arquitetura multiciclo divide a execução das instruções em várias etapas menores (3 a 5 ciclos). Isso permite compartilhar componentes físicos — como a memória e a ULA (Unidade Lógica e Aritmética) — em momentos diferentes, economizando hardware. 
+Este trabalho implementa um processador RISC multiciclo baseado no MIPS de 32 bits. Diferente de um processador de ciclo único, onde cada instrução precisa ser executada em um único pulso de clock (o que exige um clock muito lento), a arquitetura multiciclo divide a execução das instruções em várias etapas menores (3 a 5 ciclos). Isso permite compartilhar componentes físicos (como a memória e a ULA) em momentos diferentes, economizando hardware. 
 
 O projeto foi inteiramente descrito em VHDL e conta com 8 instruções implementadas, sendo 6 do conjunto básico do MIPS e 2 instruções "complexas" criadas especificamente para este trabalho. O material aqui presente foi estruturado para servir de guia de estudos, ajudando alunos que estão tendo o primeiro contato com arquitetura de computadores, VHDL e a ferramenta Vivado.
 
@@ -189,6 +188,10 @@ Se você nunca usou o Xilinx Vivado ou não é familiar com VHDL, siga este pass
 4. Clique com o botão direito na engrenagem superior da tela de ondas e ajuste o formato de visualização para **Radix -> Hexadecimal** ou **Unsigned Decimal** para facilitar a leitura.
 5. Clique no botão **Run All** (ícone de "Play" com um timer) no menu superior, ou aperte `Shift + F5`.
 6. Para visualizar a execução, expanda o vetor `Reg_Debug`. Você verá, ciclo a ciclo, os registradores mudando de valor conforme as instruções são executadas na memória!
+
+<b>Essa é a simulação do projeto. Você pode acrescentar mais coisas à simulação, mudar a cor, etc.</b>
+<img width="1083" height="721" alt="95daccd0-1f04-4f6a-b18e-06673ecf0281" src="https://github.com/user-attachments/assets/953a8757-7966-4625-bcea-c03d13187250" />
+
 
 ## 9. Programa de Teste e Validação
 
