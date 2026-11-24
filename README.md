@@ -139,9 +139,21 @@ Para fins de avaliação estrutural e validação do RTL, abaixo estão os princ
 * **Slice Registers (Flip-Flops):** 9.497 de 35.200 disponíveis (26,98%)
 * **F7 Muxes:** 1.312 de 8.800 disponíveis (14,91%)
 * **F8 Muxes:** 512 de 4.400 disponíveis (11,64%)
-* **DSPs e Block RAMs:** 0% (O projeto fez uso estrito de lógica combinacional e registradores padrão, sem inferir blocos de RAM dedicados da FPGA)[cite: 1]
+* **DSPs e Block RAMs:** 0% (O projeto fez uso estrito de lógica combinacional e registradores padrão, sem inferir blocos de RAM dedicados da FPGA)
 
 **Nota sobre a superutilização de pinos (IOB):** O relatório apontou o uso de 1.026 pinos de I/O (Bonded IOB), o que representa 1900% da capacidade da placa. Esse comportamento é esperado, visto que o barramento de debug `Debug_Regs` expõe todos os registradores simultaneamente (32 registradores de 32 bits = 1024 bits) para a raiz do *TopLevel* a fim de facilitar a visualização na simulação. Em uma implementação física real, esse sinal de debug seria removido, mantendo o design dentro dos limites de pinos físicos da placa.
+
+### 6.2 Monitoramento de Registradores (`Debug_Regs`)
+
+Durante o desenvolvimento e a avaliação do processador (especialmente para fins didáticos), é fundamental conseguir visualizar o estado interno do Banco de Registradores a cada ciclo de clock. Normalmente, em VHDL, sinais declarados internamente em componentes inferiores (como o tipo *array* de registradores dentro do `banco_registradores.vhd`) ficam encapsulados e não aparecem facilmente na raiz da simulação do nível superior.
+
+Para resolver isso de forma elegante e facilitar a depuração e a correção, foi implementado o sinal `Debug_Regs`. Ele funciona da seguinte maneira:
+
+1. **No Banco de Registradores (`banco_registradores.vhd`):** Um laço `for` (`gen_debug`) mapeia continuamente o conteúdo dos 32 registradores de 32 bits para uma única saída achatada de 1024 bits (`std_logic_vector(1023 downto 0)`).
+2. **Propagação estrutural:** Esse vetor gigante atravessa a hierarquia, saindo do `banco_registradores.vhd` para o `data_path.vhd`, e do Datapath para a saída do processador no `TopLevel.vhd`.
+3. **No Testbench (`testbench.vhd`):** O vetor de 1024 bits é recebido e reconvertido automaticamente em um *array* visualmente limpo de 32 posições de 32 bits, chamado `Reg_Debug`.
+
+**O resultado prático:** Ao rodar a simulação no Vivado, não é necessário abrir e "cavar" a hierarquia de blocos no menu *Scopes* para procurar a matriz do banco. O array `Reg_Debug` já aparece desmembrado na tela principal do *Waveform*, permitindo auditar instantaneamente o valor de todos os registradores (`$0` a `$31`) e confirmar visualmente a execução correta das instruções.
 
 ## 7. Estrutura do repositório
 
